@@ -1,87 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Typing Speed Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Custom styles for the Inter font and overall body background */
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 50px;
-            background-color: rgb(66, 63, 63);
-            color: white;
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Darker background */
+            color: #e2e8f0; /* Light text color */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
         }
-        sentence {
-            font-size: 18px;
-            margin-bottom: 20px;
-        }
-        textarea {
-            width: 60%;
-            height: 100px;
-            font-size: 16px;
-            padding: 10px;
-            border-radius: 5px;
-            border: 3px solid black;
-        }
-        button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: Green;
-            color: white;
-            cursor: pointer;
-            border-radius: 8px;
-        }
-        result {
-            margin-top: 15px;
-            font-size: 20px;
-            font-weight: bold;
+        /* Ensure the textarea and button have appropriate focus styles */
+        textarea:focus, button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5); /* Blue focus ring */
         }
     </style>
 </head>
-<body>
-    <h1>Typing Speed Test</h1>
-    <p id="sentence">Click "Start" to get a random sentence and begin typing</p>
-    <textarea id="textInput" placeholder="Start typing here..." disabled></textarea>
-    <br>
-    <button onclick="startTest()">Start</button>
-    <p id="result"></p>
+<body class="antialiased">
+    <div class="max-w-4xl w-full bg-gray-800 p-8 rounded-xl shadow-2xl space-y-6">
+        <h1 class="text-4xl font-extrabold text-center text-green-400 mb-6">Typing Speed Test</h1>
+
+        <p id="sentence" class="text-xl text-gray-300 bg-gray-700 p-6 rounded-lg border-2 border-gray-600 shadow-inner leading-relaxed">
+            Click "Start" to get a random sentence and begin typing.
+        </p>
+
+        <textarea
+            id="textInput"
+            class="w-full h-32 text-lg p-4 rounded-lg border-4 border-gray-600 bg-gray-700 text-white placeholder-gray-400 resize-none focus:border-blue-500 transition-all duration-300"
+            placeholder="Start typing here..."
+            disabled
+        ></textarea>
+
+        <button
+            onclick="startTest()"
+            class="w-full md:w-auto px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-bold text-xl rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-75"
+        >
+            Start Test
+        </button>
+
+        <p id="result" class="text-3xl font-extrabold text-blue-400 mt-6"></p>
+    </div>
 
     <script>
+        // Array of quotes for the typing test. More quotes ensure greater variety.
         const quotes = [
             "The quick brown fox jumps over the lazy dog.",
-            "Typing fast is a useful skill in today's world.",
-            "JavaScript is a versatile programming language.",
-            "Coding is both an art and a science.",
-            "Practice makes perfect in the world of typing."
+            "Typing fast is a useful skill in today's digital world, enhancing productivity.",
+            "JavaScript is a versatile programming language widely used for web development.",
+            "Coding is both an art and a science, requiring creativity and logical thinking.",
+            "Practice makes perfect in the world of typing; consistent effort leads to improvement.",
+            "The early bird catches the worm, but the second mouse gets the cheese.",
+            "Innovation distinguishes between a leader and a follower.",
+            "The only way to do great work is to love what you do.",
+            "Life is what happens when you're busy making other plans.",
+            "The future belongs to those who believe in the beauty of their dreams.",
+            "Strive not to be a success, but rather to be of value.",
+            "The mind is everything. What you think you become.",
+            "Eighty percent of success is showing up.",
+            "Your time is limited, so don't waste it living someone else's life.",
+            "The best way to predict the future is to create it.",
+            "It does not matter how slowly you go as long as you do not stop.",
+            "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+            "The only true wisdom is in knowing you know nothing.",
+            "Happiness is not something ready made. It comes from your own actions.",
+            "The unexamined life is not worth living.",
+            "To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment.",
+            "The journey of a thousand miles begins with a single step.",
+            "That which does not kill us makes us stronger.",
+            "Do not go where the path may lead, go instead where there is no path and leave a trail.",
+            "We are what we repeatedly do. Excellence, then, is not an act, but a habit.",
+            "The greatest glory in living lies not in never falling, but in rising every time we fall.",
+            "It is during our darkest moments that we must focus to see the light.",
+            "In the end, it's not the years in your life that count. It's the life in your years.",
+            "Many of life's failures are people who did not realize how close they were to success when they gave up.",
+            "If you want to live a happy life, tie it to a goal, not to people or things.",
+            "Never let the fear of striking out keep you from playing the game.",
+            "The only impossible journey is the one you never begin.",
+            "The mind is not a vessel to be filled, but a fire to be kindled.",
+            "Not all those who wander are lost.",
+            "The very things that hold you down are going to lift you up.",
+            "What lies behind us and what lies before us are tiny matters compared to what lies within us.",
+            "Where there is love there is life.",
+            "The only way to do great work is to love what you do.",
+            "If you can't explain it simply, you don't understand it well enough.",
+            "The only limit to our realization of tomorrow will be our doubts of today.",
+            "Darkness cannot drive out darkness; only light can do that. Hate cannot drive out hate; only love can do that.",
+            "The best revenge is massive success.",
+            "It is better to be hated for what you are than loved for what you are not.",
+            "Life is a succession of lessons which must be lived to be understood.",
+            "You will never be happy if you continue to search for what happiness consists of. You will never live if you are looking for the meaning of life.",
+            "The greatest discovery of all time is that a person can change his future by merely changing his attitude.",
+            "If you want to achieve greatness stop asking for permission.",
+            "Things work out best for those who make the best of how things work out.",
+            "To live is the rarest thing in the world. Most people exist, that is all.",
+            "Live as if you were to die tomorrow. Learn as if you were to live forever.",
+            "The difference between a successful person and others is not a lack of strength, not a lack of knowledge, but rather a lack of will."
         ];
 
-        let startTime;
-        let selectedQuote = "";
+        let startTime; // Stores the start time of the test
+        let selectedQuote = ""; // Stores the quote the user needs to type
 
+        /**
+         * Starts the typing test.
+         * Selects a random quote, enables the input field, clears previous results,
+         * sets the start time, and attaches the input event listener.
+         */
         function startTest() {
+            // Selects a random quote from the 'quotes' array
             selectedQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            // Displays the selected quote in the 'sentence' paragraph
             document.getElementById("sentence").innerText = selectedQuote;
+            // Enables the text input area
             document.getElementById("textInput").disabled = false;
+            // Clears any previously typed text
             document.getElementById("textInput").value = "";
+            // Clears any previous results
             document.getElementById("result").innerText = "";
+            // Sets focus to the text input area for immediate typing
             document.getElementById("textInput").focus();
+            // Records the start time of the test
             startTime = new Date().getTime();
 
+            // Attaches an event listener to the text input to check typing progress
+            // The 'input' event fires whenever the value of an <input> or <textarea> element has been changed.
             document.getElementById("textInput").addEventListener("input", checkTyping);
         }
 
+        /**
+         * Checks the user's typing progress.
+         * Calculates WPM and displays the result when the typed text matches the quote.
+         */
         function checkTyping() {
             let typedText = document.getElementById("textInput").value;
+
+            // Check if the typed text matches the selected quote exactly
             if (typedText === selectedQuote) {
-                let endTime = new Date().getTime();
-                let timeTaken = (endTime - startTime) / 1000; 
+                let endTime = new Date().getTime(); // Records the end time of the test
+                // Calculates the time taken in seconds
+                let timeTaken = (endTime - startTime) / 1000;
+                // Counts the number of words in the selected quote
                 let words = selectedQuote.split(" ").length;
+                // Calculates Words Per Minute (WPM)
                 let wpm = Math.round((words / timeTaken) * 60);
 
+                // Displays the calculated WPM to the user
                 document.getElementById("result").innerText = `You typed at ${wpm} WPM!`;
+                // Disables the text input area after the test is complete
                 document.getElementById("textInput").disabled = true;
+                // Removes the event listener to prevent further checks after completion
+                document.getElementById("textInput").removeEventListener("input", checkTyping);
             }
         }
     </script>
 </body>
 </html>
+
